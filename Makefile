@@ -3,7 +3,7 @@ EXEC = pc-test
 all: $(EXEC)
 
 CC ?= gcc
-CFLAGS = -std=c11 -Wall -g
+CFLAGS = -std=c11 -Wall -Werror -g
 LDFLAGS = -lpthread
 
 OBJS := \

@@ -47,7 +47,7 @@ QueueResult queue_pop(queue_p q)
     assert(queue_has_front(q) == QUEUE_TRUE);
 
     /* get the head */
-    node *popped = atomic_load(&q->head);
+    node *popped = (node*) atomic_load(&q->head);
     node *compare = popped;
 
     /* set the tail and head to nothing if they are the same */
@@ -68,7 +68,7 @@ QueueResult queue_pop(queue_p q)
 	     */
             new_head = (node *) atomic_load(&popped->next);
         }
-        atomic_store(&q->head, new_head);
+        atomic_store(&q->head, new_head->next);
     }
 
     free(popped);
@@ -88,13 +88,13 @@ QueueResult queue_push(queue_p q, void *data)
     memcpy(new_tail + 1, data, q->item_size);
 
     /* swap the new tail with the old */
-    node *old_tail = (node *) atomic_exchange(&q->tail, new_tail);
+    node *old_tail = (node *) atomic_exchange(&q->tail, new_tail->next);
 
     /* link the old tail to the new */
     if (old_tail) {
-        atomic_store(&old_tail->next, new_tail);
+        atomic_store(&old_tail->next, new_tail->next);
     } else {
-        atomic_store(&q->head, new_tail);
+        atomic_store(&q->head, new_tail->next);
     }
     return QUEUE_SUCCESS;
 }
